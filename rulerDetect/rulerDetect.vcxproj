@@ -81,12 +81,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="eventhandler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="preprocess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="img\pfm20.jpg" />
     <Image Include="img\pfm20.png" />
     <Image Include="img\pfm20_ruler.png" />
+    <Image Include="img\ruler_metal_T.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="eventhandler.h" />
+    <ClInclude Include="preprocess.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
