@@ -18,14 +18,15 @@ void static mouseHandlerWrapper(int event, int x, int y, int flags, void *param)
 
 void cropImage(Mat& input, Mat& output) {
 	Mat temp = input.clone();
-	Mat roi2(temp, Rect(Point(255,159), Point(310,216)));
-	Mat curr_imgT = roi2.clone();
-	output = curr_imgT;
+	//Mat roi2(temp, Rect(Point(255,159), Point(310,216)));
+	//Mat curr_imgT = roi2.clone();
+	temp.copyTo(output);
+	//output = curr_imgT;
 }
 
 int main(int argc, char** argv)
 {
-	const char* filename = argc >= 2 ? argv[1] : "img/ruler_metal_T.png";
+	const char* filename = argc >= 2 ? argv[1] : "img/2.png";
 	Mat Icol = imread(filename, CV_LOAD_IMAGE_COLOR);
 	Mat processed;
 	Mat result, resultconj;
@@ -35,16 +36,26 @@ int main(int argc, char** argv)
 	imshow("My_Win", Icol);
 	cropImage(Icol, processed);
 	imshow("processed", processed);
-	preprocessImage(processed, processed);
-
+	//preprocessImage(processed, processed);
+	cv::cvtColor(processed, processed, CV_RGB2GRAY);
 	//adaptiveThreshold(processed, result, 255, ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 3, 5);
 	fourier(processed, result, false);
 	fourier(processed, result, true);
 	psdt(processed, result);
 	Mat stg;
-	cout << result.depth();
-	hough(result, stg);
+	float angle = getLineAngle(result, stg);
+	cout << angle;
+	int length = 150;
+	Point P1(result.cols / 2, result.rows / 2);
+	Point P2;
 
+	P2.x = (int)round(P1.x + length * cos(angle * CV_PI / 180.0));
+	P2.y = (int)round(P1.y + length * sin(angle * CV_PI / 180.0));
+	
+	Mat colored;
+	cvtColor(processed, colored, CV_GRAY2BGR);
+	line(colored, P1, P2, Scalar(255, 0, 0));
+	imshow("processed", colored);
 	waitKey();
 
 	return 0;

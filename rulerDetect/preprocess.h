@@ -9,5 +9,5 @@ void gaussianWindow(Mat& input, Point center, int windowSize, Mat& output);
 void fourier(Mat Image, Mat& result, bool isConjugated);
 void psdt(const Mat& input, Mat& output);
 void blobDetection(Mat orig, Mat src);
-void hough(const Mat& input, Mat& output);
+float getLineAngle(const Mat& input, Mat& output);
 #endif

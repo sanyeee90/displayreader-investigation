@@ -42,7 +42,8 @@ void blobDetection(Mat orig, Mat src) {
 }
 
 void psdt(const Mat& input, Mat& output) {
-	Mat padded;                            //expand input image to optimal size
+	Mat invertedImg;
+	Mat padded, paddedinv;                            //expand input image to optimal size
 	int m = getOptimalDFTSize(input.rows);
 	int n = getOptimalDFTSize(input.cols); // on the border add zero values
 	copyMakeBorder(input, padded, 0, m - input.rows, 0, n - input.cols, BORDER_CONSTANT, Scalar::all(0));
@@ -50,19 +51,28 @@ void psdt(const Mat& input, Mat& output) {
 
 	Mat complexI, conjugateI;
 	merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
-	dft(complexI, complexI);            // this way the result may fit in the source matrix
-	Mat planesconj[] = {Mat_<float>(padded), Mat_<float>((planes[1]*-1))};
-	merge(planesconj, 2, conjugateI);                   // planes[0] = Re(DFT(I), planes[1] = conj(Im(DFT(I)))
-	Mat result = complexI * conjugateI;
+	dft(complexI, complexI, DFT_COMPLEX_OUTPUT + DFT_SCALE);            // this way the result may fit in the source matrix
+
+	Mat result;
+	//result = complexI;
+	mulSpectrums(complexI, complexI, result, DFT_SCALE, true);
+
+	Mat normal;
+	dft(result, normal, DFT_INVERSE + DFT_REAL_OUTPUT);
+	normalize(normal, normal, 0, 1, CV_MINMAX);
+	imshow("result", normal);
+
+
 	Mat resultplanes[2];
 	split(result, resultplanes);                   // planes[0] = Re(DFT(I), planes[1] = Im(DFT(I))
 
-	magnitude(resultplanes[0], resultplanes[1], resultplanes[0]);// planes[0] = magnitude
-	Mat magI = resultplanes[0];
-	/*
+	Mat magI;
+	magnitude(resultplanes[0], resultplanes[1], magI); // planes[0] = magnitude
+
+	
 	magI += Scalar::all(1);                    // switch to logarithmic scale
 	log(magI, magI);
-	*/
+	
 	// crop the spectrum, if it has an odd number of rows or columns
 	magI = magI(Rect(0, 0, magI.cols & -2, magI.rows & -2));
 
@@ -100,7 +110,7 @@ void fourier(Mat Image, Mat& result, bool isConjugated) {
 	Mat complexI;
 	merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
 
-	dft(complexI, complexI);            // this way the result may fit in the source matrix
+	dft(complexI, complexI, DFT_COMPLEX_OUTPUT | DFT_SCALE);            // this way the result may fit in the source matrix
 
 	// compute the magnitude and switch to logarithmic scale
 	// => log(1 + sqrt(Re(DFT(I))^2 + Im(DFT(I))^2))
@@ -157,28 +167,34 @@ void gaussianWindow(Mat& input, Point center, int windowSize, Mat& output) {
 
 }
 
-void hough(const Mat& inputmat, Mat& output) {
+float getLineAngle(const Mat& inputmat, Mat& output) {
 	Mat input, dst, cdst;
 	Mat temp;
 	double Max, Min;
 	inputmat.copyTo(input);
 	minMaxLoc(input, &Min, &Max);
-	//cout << input;
+
 	input *= 255.0;
-	input *= 2.0;
+
 	input.convertTo(temp, CV_8U);
+	line(temp, Point(temp.cols / 2, 0), Point(temp.cols / 2, temp.rows), Scalar(0, 0, 0), 3);
+	circle(temp, Point(temp.cols/2, temp.rows/2), 5, Scalar(0, 0, 0),-1);
 	imshow("temp", temp);
+	Point minLoc, maxLoc;
+	minMaxLoc(temp, &Min, &Max, &minLoc, &maxLoc);
+	dst = temp;
 
-	minMaxLoc(temp, &Min, &Max);
-	Canny(temp, dst, 50, 200, 3);
 	cvtColor(dst, cdst, CV_GRAY2BGR);
+	Point center(temp.cols / 2, temp.rows / 2);
+	line(cdst, maxLoc, center, Scalar(0, 255, 0), 1);
 
-	vector<Vec4i> lines;
-	HoughLinesP(dst, lines, 1, CV_PI / 180, 50, 50, 10);
-	for (size_t i = 0; i < lines.size(); i++)
-	{
-		Vec4i l = lines[i];
-		line(cdst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
-	}
+	float dx = abs(maxLoc.x - center.x);
+	float dy = abs(maxLoc.y - center.y);
+
+	float angle = atan2(dy, dx);
+	angle *= 180 / CV_PI;
+
+	//circle(cdst, maxLoc, 10, Scalar(0,255,0));
 	imshow("detected lines", cdst);
+	return angle;
 }
