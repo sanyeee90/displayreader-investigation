@@ -15,6 +15,6 @@ public:
 	Point getFirstPoint() { return this->pt1; }
 	Point getLastPoint() { return this->pt2; }
 	void setInputImage(Mat& img) { this->cap_img = img.clone(); }
-	void (EventHandler::*pt2Member)(int, int, int, int, void *) = NULL;
+	void (EventHandler::*pt2Member)(int, int, int, int, void *);
 };
 

@@ -16,7 +16,7 @@ void blobDetection(Mat orig, Mat src) {
 	Rect bounding_rect;
 	src.copyTo(temp);
 
-	vector<vector<Point>> contours; // storing contour
+	vector<vector<Point> > contours; // storing contour
 	vector<Vec4i> hierarchy;
 
 	findContours(temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
