@@ -5,6 +5,8 @@
 #include <iostream>
 #include "preprocess.h"
 #include "eventhandler.h"
+#include "line.h"
+
 using namespace cv;
 using namespace std;
 
@@ -30,31 +32,29 @@ int main(int argc, char** argv)
 	Mat Icol = imread(filename, CV_LOAD_IMAGE_COLOR);
 	Mat processed;
 	Mat result, resultconj;
-	namedWindow("My_Win", 1);
-	//cvSetMouseCallback("My_Win", mouseHandlerWrapper, 0);
-	//sleep(1);
-	imshow("My_Win", Icol);
+	//namedWindow("My_Win", 1);
+
+	//imshow("My_Win", Icol);
 	cropImage(Icol, processed);
-	imshow("processed", processed);
+	//imshow("processed", processed);
 	//preprocessImage(processed, processed);
 	cv::cvtColor(processed, processed, CV_RGB2GRAY);
 	//adaptiveThreshold(processed, result, 255, ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 3, 5);
-	fourier(processed, result, false);
-	fourier(processed, result, true);
 	psdt(processed, result);
 	Mat stg;
 	float angle = getLineAngle(result, stg);
-	cout << angle;
-	int length = 150;
-	Point P1(result.cols / 2, result.rows / 2);
-	Point P2;
+	cout << angle << endl;
 
-	P2.x = (int)round(P1.x + length * cos(angle * CV_PI / 180.0));
-	P2.y = (int)round(P1.y + length * sin(angle * CV_PI / 180.0));
-	
+    Point P1(result.cols / 2, result.rows / 2);
+    Line* generatedLine = new Line(-angle, P1);
+    
+    vector<uchar> values = generatedLine->getImageData(processed);
+
+    
+    
 	Mat colored;
 	cvtColor(processed, colored, CV_GRAY2BGR);
-	line(colored, P1, P2, Scalar(255, 0, 0));
+    generatedLine->applyToImage(colored, Scalar(255,0,0));
 	imshow("processed", colored);
 	waitKey();
 
