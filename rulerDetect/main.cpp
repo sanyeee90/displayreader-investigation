@@ -6,6 +6,9 @@
 #include "preprocess.h"
 #include "eventhandler.h"
 #include "line.h"
+extern "C" {
+#include "Yin.h"
+}
 
 using namespace cv;
 using namespace std;
@@ -48,13 +51,33 @@ int main(int argc, char** argv)
     Point P1(result.cols / 2, result.rows / 2);
     Line* generatedLine = new Line(-angle, P1);
     
-    vector<uchar> values = generatedLine->getImageData(processed);
+    vector<uchar> *values = new vector<uchar>(generatedLine->getImageData(processed));
 
+    int16_t *data = new int16_t[values->size()];
+    int i = 0;
+    for(vector<uchar>::iterator it = values->begin(); it <= values->end();it++){
+        data[i]=(int16_t)*it;
+        cout<< data[i] << " ";
+        i++;
+    }
+
+    int buffer_length = 10;
+    Yin yin;
+    float pitch;
+
+    while (pitch < 10 ) {
+        Yin_init(&yin, buffer_length, 0.09);
+		pitch = Yin_getPitch(&yin, data);
+        cout<< "pitch: " << pitch << endl;
+		buffer_length++;
+	}
     
+    cout << "buffer_length: " <<buffer_length;
     
 	Mat colored;
 	cvtColor(processed, colored, CV_GRAY2BGR);
     generatedLine->applyToImage(colored, Scalar(255,0,0));
+    generatedLine->applyScalePoints(colored, buffer_length);
 	imshow("processed", colored);
 	waitKey();
 

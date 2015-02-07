@@ -23,6 +23,7 @@ private:
 public:
     Line(float angle, Point referencept):angle(angle),startPoint(referencept) {}
     void applyToImage(Mat& inputImg, const Scalar& color);
+    void applyScalePoints(Mat& inputImg, const int length);
     vector<uchar> getImageData(const Mat& input);
 };
 

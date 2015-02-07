@@ -34,3 +34,14 @@ vector<uchar> Line::getImageData(const cv::Mat &input) {
     }
     return buf;
 }
+
+void Line::applyScalePoints(cv::Mat &inputImg, const int length) {
+    pair<Point, Point> linePoints = getLinePoints(inputImg.cols, inputImg.rows);
+    cv::LineIterator it(inputImg, linePoints.first, linePoints.second, 8);
+
+    for(int i = 0; i < it.count; i++, ++it)
+    {
+        if(i%length==0)
+        circle(inputImg, it.pos(), 5, Scalar(0,255,0));
+    }
+}
