@@ -11,8 +11,9 @@
 static const int LINE_START = 0;
 
 pair<Point, Point> Line::getLinePoints(int width, int height) {
-    float m = tan(angle);
-    float n = startPoint.y - (tan (angle) * startPoint.x );
+    float radianAngle = angle * CV_PI / 180.0;
+    float m = tan(radianAngle);
+    float n = startPoint.y - (tan (radianAngle) * startPoint.x );
     Point p1(LINE_START, LINE_START*m + n);
     Point p2(width, width*m + n);
     return pair<Point, Point>(p1,p2);

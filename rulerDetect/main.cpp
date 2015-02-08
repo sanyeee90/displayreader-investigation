@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	cout << angle << endl;
 
     Point P1(result.cols / 2, result.rows / 2);
-    Line* generatedLine = new Line(-angle, P1);
+    Line* generatedLine = new Line(angle, P1);
     
     vector<uchar> *values = new vector<uchar>(generatedLine->getImageData(processed));
 
@@ -66,18 +66,16 @@ int main(int argc, char** argv)
     float pitch;
 
     while (pitch < 10 ) {
-        Yin_init(&yin, buffer_length, 0.09);
+        Yin_init(&yin, buffer_length, 0.20);
 		pitch = Yin_getPitch(&yin, data);
-        cout<< "pitch: " << pitch << endl;
+        cout<< "buffer_length: " << buffer_length << "pitch: " << pitch << endl;
 		buffer_length++;
 	}
-    
-    cout << "buffer_length: " <<buffer_length;
     
 	Mat colored;
 	cvtColor(processed, colored, CV_GRAY2BGR);
     generatedLine->applyToImage(colored, Scalar(255,0,0));
-    generatedLine->applyScalePoints(colored, buffer_length);
+    generatedLine->applyScalePoints(colored, buffer_length-1);
 	imshow("processed", colored);
 	waitKey();
 

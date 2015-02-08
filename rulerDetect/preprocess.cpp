@@ -192,7 +192,7 @@ float getLineAngle(const Mat& inputmat, Mat& output) {
 	float dy = abs(maxLoc.y - center.y);
 
 	float angle = atan2(dy, dx);
-	angle *= 180 / CV_PI;
+	angle *= (180 / CV_PI);
 
 	//circle(cdst, maxLoc, 10, Scalar(0,255,0));
 	imshow("detected lines", cdst);
