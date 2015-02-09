@@ -35,14 +35,10 @@ int main(int argc, char** argv)
 	Mat Icol = imread(filename, CV_LOAD_IMAGE_COLOR);
 	Mat processed;
 	Mat result, resultconj;
-	//namedWindow("My_Win", 1);
 
-	//imshow("My_Win", Icol);
 	cropImage(Icol, processed);
-	//imshow("processed", processed);
-	//preprocessImage(processed, processed);
 	cv::cvtColor(processed, processed, CV_RGB2GRAY);
-	//adaptiveThreshold(processed, result, 255, ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 3, 5);
+
 	psdt(processed, result);
 	Mat stg;
 	float angle = getLineAngle(result, stg);
@@ -55,7 +51,7 @@ int main(int argc, char** argv)
 
     int16_t *data = new int16_t[values->size()];
     int i = 0;
-    for(vector<uchar>::iterator it = values->begin(); it <= values->end();it++){
+    for(vector<uchar>::iterator it = values->begin(); it != values->end();it++){
         data[i]=(int16_t)*it;
         cout<< data[i] << " ";
         i++;
@@ -66,7 +62,7 @@ int main(int argc, char** argv)
     float pitch;
 
     while (pitch < 10 ) {
-        Yin_init(&yin, buffer_length, 0.20);
+        Yin_init(&yin, buffer_length, 0.25);
 		pitch = Yin_getPitch(&yin, data);
         cout<< "buffer_length: " << buffer_length << "pitch: " << pitch << endl;
 		buffer_length++;

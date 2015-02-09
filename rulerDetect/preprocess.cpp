@@ -43,11 +43,11 @@ void blobDetection(Mat orig, Mat src) {
 
 void psdt(const Mat& input, Mat& output) {
 	Mat invertedImg;
-	Mat padded, paddedinv;                            //expand input image to optimal size
+	Mat padded;                            //expand input image to optimal size
 	int m = getOptimalDFTSize(input.rows);
 	int n = getOptimalDFTSize(input.cols); // on the border add zero values
 	copyMakeBorder(input, padded, 0, m - input.rows, 0, n - input.cols, BORDER_CONSTANT, Scalar::all(0));
-	Mat planes[] = { Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F) };
+	Mat planes[] = { Mat_<float>(input), Mat::zeros(input.size(), CV_32F) };
 
 	Mat complexI, conjugateI;
 	merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
@@ -179,11 +179,11 @@ float getLineAngle(const Mat& inputmat, Mat& output) {
 	input.convertTo(temp, CV_8U);
 	line(temp, Point(temp.cols / 2, 0), Point(temp.cols / 2, temp.rows), Scalar(0, 0, 0), 3);
 	circle(temp, Point(temp.cols/2, temp.rows/2), 5, Scalar(0, 0, 0),-1);
-	imshow("temp", temp);
 	Point minLoc, maxLoc;
+    resize(temp, temp, Size(temp.rows*1.5, temp.cols*1.5));
 	minMaxLoc(temp, &Min, &Max, &minLoc, &maxLoc);
 	dst = temp;
-
+    
 	cvtColor(dst, cdst, CV_GRAY2BGR);
 	Point center(temp.cols / 2, temp.rows / 2);
 	line(cdst, maxLoc, center, Scalar(0, 255, 0), 1);
@@ -194,7 +194,7 @@ float getLineAngle(const Mat& inputmat, Mat& output) {
 	float angle = atan2(dy, dx);
 	angle *= (180 / CV_PI);
 
-	//circle(cdst, maxLoc, 10, Scalar(0,255,0));
 	imshow("detected lines", cdst);
+    cdst.copyTo(output);
 	return angle;
 }
